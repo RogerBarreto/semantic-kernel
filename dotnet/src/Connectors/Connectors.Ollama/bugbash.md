@@ -65,7 +65,33 @@ Currently Ollama has 5 Concept tests.
 - Text / [Ollama_TextGenerationStreaming](https://github.com/microsoft/semantic-kernel/blob/feature-connectors-ollama/dotnet/samples/Concepts/TextGeneration/Ollama_TextGenerationStreaming.cs)
 - Memory / [Ollama_EmbeddingGeneration](https://github.com/microsoft/semantic-kernel/blob/feature-connectors-ollama/dotnet/samples/Concepts/Memory/Ollama_EmbeddingGeneration.cs)
 
-### 6. Extra
+### 6. Configuring Credentials for AI Model Router Sample
+
+Back to your Terminal, go to `repo/dotnet/samples/Demos/AIModelRouter` folder
+
+And setup the user secrets as below:
+
+```powershell
+
+dotnet user-secrets set "Ollama:Endpoint" "" # Optional (defaults to http://localhost:11434)
+dotnet user-secrets set "Ollama:ModelId" "phi3"
+dotnet user-secrets set "OpenAI:ApiKey" "... your OpenAI key ... "
+```
+### 7. Running the sample
+
+After configuring the sample, to build and run the console application.
+
+### Example of a conversation
+
+> **User** > OpenAI, what is Jupiter? Keep it simple.
+
+> **Assistant** > Sure! Jupiter is the largest planet in our solar system. It's a gas giant, mostly made of hydrogen and helium, and it has a lot of storms, including the famous Great Red Spot. Jupiter also has at least 79 moons.
+
+> **User** > Ollama, what is Jupiter? Keep it simple.
+
+> **Assistant** > Jupiter is a giant planet in our solar system known for being the largest and most massive, famous for its spectacled clouds and dozens of moons including Ganymede which is bigger than Earth!
+
+### 8. Extra
 
 If you want to test the Ollama more, try pulling other `Chat`/`Text` models from [Ollama's Library](https://ollama.com/library) and updating the configuration to them.
 
