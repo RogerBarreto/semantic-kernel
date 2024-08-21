@@ -47,7 +47,7 @@ ollama pull mxbai-embed-large
 Change your current branch to the feature branch [feature-connectors-ollama](https://github.com/microsoft/semantic-kernel/tree/feature-connectors-ollama)
 
 ```powershell
-git pull feature-connectors-ollama
+git checkout -b feature-connectors-ollama feature-connectors-ollama
 ```
 
 Back to your Terminal, go to `repo/dotnet/samples/Concepts` folder
