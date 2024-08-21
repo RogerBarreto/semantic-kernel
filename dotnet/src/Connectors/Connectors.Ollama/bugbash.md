@@ -44,6 +44,12 @@ ollama pull mxbai-embed-large
 
 ### 4. Configuring Credentials
 
+Change your current branch to the feature branch [feature-connectors-ollama](https://github.com/microsoft/semantic-kernel/tree/feature-connectors-ollama)
+
+```powershell
+git pull feature-connectors-ollama
+```
+
 Back to your Terminal, go to `repo/dotnet/samples/Concepts` folder
 
 And setup the user secrets as below:
