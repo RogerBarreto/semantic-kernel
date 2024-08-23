@@ -4,12 +4,12 @@ using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Net.Mime;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
 #pragma warning disable CA1812
+#pragma warning disable CA2016 // Forward the 'CancellationToken' parameter to methods
 
 internal sealed class MultipleHttpMessageHandlerStub : DelegatingHandler
 {
@@ -33,7 +33,7 @@ internal sealed class MultipleHttpMessageHandlerStub : DelegatingHandler
     {
         this.ResponsesToReturn.Add(new HttpResponseMessage(System.Net.HttpStatusCode.OK)
         {
-            Content = new StringContent(json, Encoding.UTF8, MediaTypeNames.Application.Json)
+            Content = new StringContent(json, Encoding.UTF8, "application/json")
         });
     }
 
@@ -46,7 +46,7 @@ internal sealed class MultipleHttpMessageHandlerStub : DelegatingHandler
         this.RequestHeaders.Add(request.Headers);
         this.ContentHeaders.Add(request.Content?.Headers);
 
-        var content = request.Content is null ? null : await request.Content.ReadAsByteArrayAsync(cancellationToken);
+        var content = request.Content is null ? null : await request.Content.ReadAsByteArrayAsync();
 
         this.RequestContents.Add(content);
 

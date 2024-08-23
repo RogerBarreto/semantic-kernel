@@ -62,7 +62,7 @@ public sealed class AzureOpenAITextToAudioServiceTests : IDisposable
         var settingsWithInvalidVoice = new OpenAITextToAudioExecutionSettings("");
 
         var service = new AzureOpenAITextToAudioService("deployment-name", "https://endpoint", "api-key", "model-id", this._httpClient);
-        await using var stream = new MemoryStream(new byte[] { 0x00, 0x00, 0xFF, 0x7F });
+        using var stream = new MemoryStream(new byte[] { 0x00, 0x00, 0xFF, 0x7F });
 
         this._messageHandlerStub.ResponseToReturn = new HttpResponseMessage(HttpStatusCode.OK)
         {
@@ -80,7 +80,7 @@ public sealed class AzureOpenAITextToAudioServiceTests : IDisposable
         var expectedByteArray = new byte[] { 0x00, 0x00, 0xFF, 0x7F };
 
         var service = new AzureOpenAITextToAudioService("deployment-name", "https://endpoint", "api-key", "model-id", this._httpClient);
-        await using var stream = new MemoryStream(expectedByteArray);
+        using var stream = new MemoryStream(expectedByteArray);
 
         this._messageHandlerStub.ResponseToReturn = new HttpResponseMessage(HttpStatusCode.OK)
         {
@@ -108,7 +108,7 @@ public sealed class AzureOpenAITextToAudioServiceTests : IDisposable
         byte[] expectedByteArray = [0x00, 0x00, 0xFF, 0x7F];
 
         var service = new AzureOpenAITextToAudioService("deployment-name", "https://endpoint", "api-key", "model-id", this._httpClient);
-        await using var stream = new MemoryStream(expectedByteArray);
+        using var stream = new MemoryStream(expectedByteArray);
 
         this._messageHandlerStub.ResponseToReturn = new HttpResponseMessage(HttpStatusCode.OK)
         {
@@ -167,7 +167,7 @@ public sealed class AzureOpenAITextToAudioServiceTests : IDisposable
         }
 
         var service = new AzureOpenAITextToAudioService("deployment-name", "https://endpoint/path", "api-key", "model-id", this._httpClient);
-        await using var stream = new MemoryStream(expectedByteArray);
+        using var stream = new MemoryStream(expectedByteArray);
 
         this._messageHandlerStub.ResponseToReturn = new HttpResponseMessage(HttpStatusCode.OK)
         {
@@ -192,7 +192,7 @@ public sealed class AzureOpenAITextToAudioServiceTests : IDisposable
         var expectedByteArray = new byte[] { 0x00, 0x00, 0xFF, 0x7F };
 
         var service = new AzureOpenAITextToAudioService(deploymentName, "https://endpoint", "api-key", modelInConstructor, this._httpClient);
-        await using var stream = new MemoryStream(expectedByteArray);
+        using var stream = new MemoryStream(expectedByteArray);
 
         this._messageHandlerStub.ResponseToReturn = new HttpResponseMessage(HttpStatusCode.OK)
         {

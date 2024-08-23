@@ -319,8 +319,8 @@ public sealed class AutoFunctionInvocationFilterTests : IDisposable
         // Act
         var result = await chatCompletion.GetChatMessageContentsAsync(chatHistory, executionSettings, kernel);
 
-        var firstFunctionResult = chatHistory[^2].Content;
-        var secondFunctionResult = chatHistory[^1].Content;
+        var firstFunctionResult = chatHistory[chatHistory.Count - 2].Content;
+        var secondFunctionResult = chatHistory[chatHistory.Count - 1].Content;
 
         // Assert
         Assert.Equal("Result from filter", firstFunctionResult);
@@ -358,8 +358,8 @@ public sealed class AutoFunctionInvocationFilterTests : IDisposable
         await foreach (var item in chatCompletion.GetStreamingChatMessageContentsAsync(chatHistory, executionSettings, kernel))
         { }
 
-        var firstFunctionResult = chatHistory[^2].Content;
-        var secondFunctionResult = chatHistory[^1].Content;
+        var firstFunctionResult = chatHistory[chatHistory.Count - 2].Content;
+        var secondFunctionResult = chatHistory[chatHistory.Count - 1].Content;
 
         // Assert
         Assert.Equal("Result from filter", firstFunctionResult);
@@ -566,7 +566,7 @@ public sealed class AutoFunctionInvocationFilterTests : IDisposable
         // Results of function invoked before termination should be returned 
         Assert.Equal(3, streamingContent.Count);
 
-        var lastMessageContent = streamingContent[^1] as StreamingChatMessageContent;
+        var lastMessageContent = streamingContent[streamingContent.Count - 1] as StreamingChatMessageContent;
         Assert.NotNull(lastMessageContent);
 
         Assert.Equal("function1-value", lastMessageContent.Content);
