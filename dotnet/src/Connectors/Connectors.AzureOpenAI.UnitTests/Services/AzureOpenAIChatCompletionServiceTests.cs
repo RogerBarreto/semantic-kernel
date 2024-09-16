@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
 using System;
+using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -8,6 +9,7 @@ using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 using Azure.AI.OpenAI;
 using Azure.AI.OpenAI.Chat;
@@ -1194,6 +1196,91 @@ public sealed class AzureOpenAIChatCompletionServiceTests : IDisposable
         var functionResult = messages[4];
         Assert.Equal("tool", functionResult.GetProperty("role").GetString());
         Assert.Equal("rainy", functionResult.GetProperty("content").GetString());
+    }
+
+
+    [Fact]
+    public async Task ItCancellationWorksAsExpectedAsync()
+    {
+        // Arrange
+        using var response = new HttpResponseMessage(HttpStatusCode.OK) { Content = new StreamContent(File.OpenRead("TestData/chat_completion_streaming_test_response.txt")) };
+        this._messageHandlerStub.ResponsesToReturn.Add(response);
+
+        var sut = new AzureOpenAIChatCompletionService("deployment", "https://endpoint", "api-key", "model", this._httpClient);
+
+        using var cancellationTokenSource = new CancellationTokenSource();
+        cancellationTokenSource.Cancel();
+
+        // Act & Assert
+        await Assert.ThrowsAsync<TaskCanceledException>(async () =>
+        {
+            await foreach (var update in sut.GetStreamingChatMessageContentsAsync([], cancellationToken: cancellationTokenSource.Token))
+            {
+            }
+        });
+    }
+
+    [Fact]
+    public async Task ItCancellationWorksAsExpectedAfterFirstChunkSuccessfulAsync()
+    {
+        // Arrange
+        using var response = new HttpResponseMessage(HttpStatusCode.OK) { Content = new StreamContent(File.OpenRead("TestData/chat_completion_streaming_test_response.txt")) };
+        this._messageHandlerStub.ResponsesToReturn.Add(response);
+
+        var sut = new AzureOpenAIChatCompletionService("deployment", "https://endpoint", "api-key", "model", this._httpClient);
+
+        using var cancellationTokenSource = new CancellationTokenSource();
+        cancellationTokenSource.CancelAfter(1000);
+
+        // Act & Assert
+        await Assert.ThrowsAsync<TaskCanceledException>(async () =>
+        {
+            await foreach (var update in sut.GetStreamingChatMessageContentsAsync([], cancellationToken: cancellationTokenSource.Token))
+            {
+                await Task.Delay(1000);
+            }
+        });
+    }
+
+    [Fact]
+    public async Task ItCancellationWorksAsExpectedAfterFirstChunkSuccessful2Async()
+    {
+        // Arrange
+        using var streamText = new MemoryStream(Encoding.UTF8.GetBytes(
+            """
+            data: {"id":"Eoo","object":"chat.completion.chunk","created":1711377846,"model":"gpt-4-0125-preview","system_fingerprint":"fp_a7daf7c51e","choices":[{"index":0,"delta":{"content":"Test chat streaming response"},"logprobs":null,"finish_reason":null}]}
+
+            data: {"id":"Eoo","object":"chat.completion.chunk","created":1711377846,"model":"gpt-4-0125-preview","system_fingerprint":"fp_a7daf7c51e","choices":[{"index":0,"delta":{},"logprobs":null,"finish_reason":"stop"}]}
+
+            data: [DONE]
+            """
+            ));
+
+        using var response = new HttpResponseMessage(HttpStatusCode.OK) { Content = new StreamContent(streamText) };
+        this._messageHandlerStub.ResponsesToReturn.Add(response);
+
+        var azureClient = new AzureOpenAIClient(new Uri("http://localhost"), "api-key", new AzureOpenAIClientOptions { Transport = new HttpClientPipelineTransport(this._httpClient) });
+
+        using var cancellationTokenSource = new CancellationTokenSource();
+        cancellationTokenSource.CancelAfter(1000);
+
+        var sut = azureClient.GetChatClient("gpt-4o");
+
+        // Act & Assert
+        var enumerator = sut.CompleteChatStreamingAsync(["Hello!"], cancellationToken: cancellationTokenSource.Token).GetAsyncEnumerator();
+        await enumerator.MoveNextAsync();
+
+        var firstChunk = enumerator.Current;
+        Assert.False(cancellationTokenSource.IsCancellationRequested);
+        await Task.Delay(1000);
+
+        await Assert.ThrowsAsync<TaskCanceledException>(async () =>
+        {
+            // Should throw for the second chunk
+            Assert.True(cancellationTokenSource.IsCancellationRequested);
+            await enumerator.MoveNextAsync();
+            await enumerator.MoveNextAsync();
+        });
     }
 
     public void Dispose()
