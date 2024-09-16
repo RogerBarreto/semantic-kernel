@@ -1278,6 +1278,7 @@ public sealed class AzureOpenAIChatCompletionServiceTests : IDisposable
         {
             // Should throw for the second chunk
             Assert.True(cancellationTokenSource.IsCancellationRequested);
+            Assert.True(cancellationTokenSource.Token.IsCancellationRequested);
             await enumerator.MoveNextAsync();
             await enumerator.MoveNextAsync();
         });
