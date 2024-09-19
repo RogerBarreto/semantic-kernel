@@ -1,6 +1,8 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
 using System;
+using System.IO;
+using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
@@ -153,6 +155,31 @@ public sealed class AzureOpenAIAudioToTextServiceTests : IDisposable
         // Assert
         Assert.NotNull(result);
         Assert.Equal("Test audio-to-text response", result[0].Text);
+    }
+
+    [Theory]
+    [InlineData(null, "deployment-name")] // Defaults to service definition
+    [InlineData("", "deployment-name")]  // Defaults to service definition
+    [InlineData(" ", "deployment-name")]  // Defaults to service definition
+    [InlineData("gpt-4o", "gpt-4o")] // Uses provided model id
+    [InlineData("gpt-35-turbo", "gpt-35-turbo")] // Uses provided model id
+    public async Task GetTextContentsUseDeploymentNameFromSettingsAsync(string? providedDeploymentName, string expectedDeploymentName)
+    {
+        // Arrange
+        var service = new AzureOpenAIAudioToTextService("deployment-name", "https://endpoint", "api-key", "model-id", this._httpClient);
+        this._messageHandlerStub.ResponseToReturn = new HttpResponseMessage(System.Net.HttpStatusCode.OK)
+        {
+            Content = new StringContent("Test audio-to-text response")
+        };
+
+        // Act
+        await service.GetTextContentsAsync(new AudioContent(new BinaryData("data"), mimeType: null), new AzureOpenAIAudioToTextExecutionSettings("file.mp3") { DeploymentName = providedDeploymentName });
+
+        var requestUri = this._messageHandlerStub.RequestUri!;
+        Assert.Contains($"openai/deployments/{expectedDeploymentName}/audio/transcriptions", requestUri.ToString());
+
+        var requestBody = Encoding.UTF8.GetString(this._messageHandlerStub.RequestContent!);
+        Assert.Contains($"Content-Disposition: form-data; name=model\r\n\r\n{expectedDeploymentName}", requestBody);
     }
 
     public void Dispose()

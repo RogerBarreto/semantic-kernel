@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.SemanticKernel.AudioToText;
+using Microsoft.SemanticKernel.Connectors.OpenAI.Core;
 using OpenAI;
 
 namespace Microsoft.SemanticKernel.Connectors.OpenAI;
@@ -65,5 +66,6 @@ public sealed class OpenAIAudioToTextService : IAudioToTextService
         PromptExecutionSettings? executionSettings = null,
         Kernel? kernel = null,
         CancellationToken cancellationToken = default)
-        => this._client.GetTextFromAudioContentsAsync(this._client.ModelId, content, executionSettings, cancellationToken);
+        => this._client.GetTextFromAudioContentsAsync(
+            ServiceUtils.GetModelId(executionSettings, this._client.ModelId), content, executionSettings, cancellationToken);
 }

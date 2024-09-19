@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Azure.AI.OpenAI;
 using Azure.Core;
 using Microsoft.Extensions.Logging;
+using Microsoft.SemanticKernel.Connectors.OpenAI.Core;
 using Microsoft.SemanticKernel.Services;
 using Microsoft.SemanticKernel.TextToAudio;
 
@@ -108,13 +109,6 @@ public sealed class AzureOpenAITextToAudioService : ITextToAudioService
         PromptExecutionSettings? executionSettings = null,
         Kernel? kernel = null,
         CancellationToken cancellationToken = default)
-        => this._client.GetAudioContentsAsync(this.GetModelId(executionSettings), text, executionSettings, cancellationToken);
-
-    private string GetModelId(PromptExecutionSettings? executionSettings)
-    {
-        return
-            !string.IsNullOrWhiteSpace(this._modelId) ? this._modelId! :
-            !string.IsNullOrWhiteSpace(executionSettings?.ModelId) ? executionSettings!.ModelId! :
-            this._client.DeploymentName;
-    }
+        => this._client.GetAudioContentsAsync(
+            ServiceUtils.GetModelId(executionSettings, this._client.ModelId), text, executionSettings, cancellationToken);
 }

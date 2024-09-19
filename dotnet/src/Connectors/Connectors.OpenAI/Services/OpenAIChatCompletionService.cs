@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.SemanticKernel.ChatCompletion;
+using Microsoft.SemanticKernel.Connectors.OpenAI.Core;
 using Microsoft.SemanticKernel.TextGeneration;
 using OpenAI;
 
@@ -103,7 +104,7 @@ public sealed class OpenAIChatCompletionService : IChatCompletionService, ITextG
         Kernel? kernel = null,
         CancellationToken cancellationToken = default)
         => this._client.GetChatMessageContentsAsync(
-            this.GetModelId(executionSettings),
+            ServiceUtils.GetModelId(executionSettings, this._client.ModelId),
             chatHistory,
             executionSettings,
             kernel,
@@ -116,7 +117,7 @@ public sealed class OpenAIChatCompletionService : IChatCompletionService, ITextG
         Kernel? kernel = null,
         CancellationToken cancellationToken = default)
         => this._client.GetStreamingChatMessageContentsAsync(
-            this.GetModelId(executionSettings),
+            ServiceUtils.GetModelId(executionSettings, this._client.ModelId),
             chatHistory,
             executionSettings,
             kernel,
@@ -129,7 +130,7 @@ public sealed class OpenAIChatCompletionService : IChatCompletionService, ITextG
         Kernel? kernel = null,
         CancellationToken cancellationToken = default)
         => this._client.GetChatAsTextContentsAsync(
-            this.GetModelId(executionSettings),
+            ServiceUtils.GetModelId(executionSettings, this._client.ModelId),
             prompt,
             executionSettings,
             kernel,
@@ -142,12 +143,9 @@ public sealed class OpenAIChatCompletionService : IChatCompletionService, ITextG
         Kernel? kernel = null,
         CancellationToken cancellationToken = default)
         => this._client.GetChatAsTextStreamingContentsAsync(
-            this.GetModelId(executionSettings),
+            ServiceUtils.GetModelId(executionSettings, this._client.ModelId),
             prompt,
             executionSettings,
             kernel,
             cancellationToken);
-
-    private string GetModelId(PromptExecutionSettings? executionSettings)
-        => string.IsNullOrWhiteSpace(executionSettings?.ModelId) ? this._client.ModelId : executionSettings!.ModelId!;
 }

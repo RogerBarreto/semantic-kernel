@@ -9,6 +9,7 @@ using Azure.AI.OpenAI;
 using Azure.Core;
 using Microsoft.Extensions.Logging;
 using Microsoft.SemanticKernel.AudioToText;
+using Microsoft.SemanticKernel.Connectors.OpenAI.Core;
 using Microsoft.SemanticKernel.Services;
 
 namespace Microsoft.SemanticKernel.Connectors.AzureOpenAI;
@@ -90,5 +91,6 @@ public sealed class AzureOpenAIAudioToTextService : IAudioToTextService
         PromptExecutionSettings? executionSettings = null,
         Kernel? kernel = null,
         CancellationToken cancellationToken = default)
-        => this._client.GetTextFromAudioContentsAsync(this._client.DeploymentName, content, executionSettings, cancellationToken);
+        => this._client.GetTextFromAudioContentsAsync(
+            ServiceUtils.GetModelId(executionSettings, this._client.DeploymentName), content, executionSettings, cancellationToken);
 }

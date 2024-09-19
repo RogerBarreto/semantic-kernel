@@ -6,6 +6,7 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using Microsoft.SemanticKernel.Connectors.OpenAI.Core;
 using Microsoft.SemanticKernel.Services;
 using Microsoft.SemanticKernel.TextToAudio;
 
@@ -55,5 +56,6 @@ public sealed class OpenAITextToAudioService : ITextToAudioService
         PromptExecutionSettings? executionSettings = null,
         Kernel? kernel = null,
         CancellationToken cancellationToken = default)
-        => this._client.GetAudioContentsAsync(this._client.ModelId, text, executionSettings, cancellationToken);
+        => this._client.GetAudioContentsAsync(
+            ServiceUtils.GetModelId(executionSettings, this._client.ModelId), text, executionSettings, cancellationToken);
 }

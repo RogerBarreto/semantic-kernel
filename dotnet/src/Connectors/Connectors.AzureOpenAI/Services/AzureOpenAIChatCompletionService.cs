@@ -8,6 +8,7 @@ using Azure.AI.OpenAI;
 using Azure.Core;
 using Microsoft.Extensions.Logging;
 using Microsoft.SemanticKernel.ChatCompletion;
+using Microsoft.SemanticKernel.Connectors.OpenAI.Core;
 using Microsoft.SemanticKernel.Services;
 using Microsoft.SemanticKernel.TextGeneration;
 
@@ -86,22 +87,21 @@ public sealed class AzureOpenAIChatCompletionService : IChatCompletionService, I
 
     /// <inheritdoc/>
     public Task<IReadOnlyList<ChatMessageContent>> GetChatMessageContentsAsync(ChatHistory chatHistory, PromptExecutionSettings? executionSettings = null, Kernel? kernel = null, CancellationToken cancellationToken = default)
-        => this._client.GetChatMessageContentsAsync(this.GetModelId(executionSettings), chatHistory, executionSettings, kernel, cancellationToken);
+        => this._client.GetChatMessageContentsAsync(
+            ServiceUtils.GetModelId(executionSettings, this._client.DeploymentName), chatHistory, executionSettings, kernel, cancellationToken);
 
     /// <inheritdoc/>
     public IAsyncEnumerable<StreamingChatMessageContent> GetStreamingChatMessageContentsAsync(ChatHistory chatHistory, PromptExecutionSettings? executionSettings = null, Kernel? kernel = null, CancellationToken cancellationToken = default)
-        => this._client.GetStreamingChatMessageContentsAsync(this.GetModelId(executionSettings), chatHistory, executionSettings, kernel, cancellationToken);
+        => this._client.GetStreamingChatMessageContentsAsync(
+            ServiceUtils.GetModelId(executionSettings, this._client.DeploymentName), chatHistory, executionSettings, kernel, cancellationToken);
 
     /// <inheritdoc/>
     public Task<IReadOnlyList<TextContent>> GetTextContentsAsync(string prompt, PromptExecutionSettings? executionSettings = null, Kernel? kernel = null, CancellationToken cancellationToken = default)
-        => this._client.GetChatAsTextContentsAsync(this.GetModelId(executionSettings), prompt, executionSettings, kernel, cancellationToken);
+        => this._client.GetChatAsTextContentsAsync(
+            ServiceUtils.GetModelId(executionSettings, this._client.DeploymentName), prompt, executionSettings, kernel, cancellationToken);
 
     /// <inheritdoc/>
     public IAsyncEnumerable<StreamingTextContent> GetStreamingTextContentsAsync(string prompt, PromptExecutionSettings? executionSettings = null, Kernel? kernel = null, CancellationToken cancellationToken = default)
-        => this._client.GetChatAsTextStreamingContentsAsync(this.GetModelId(executionSettings), prompt, executionSettings, kernel, cancellationToken);
-
-    private string GetModelId(PromptExecutionSettings? executionSettings)
-        => string.IsNullOrWhiteSpace(executionSettings?.ModelId)
-            ? this._client.DeploymentName
-            : executionSettings!.ModelId!;
+        => this._client.GetChatAsTextStreamingContentsAsync(
+            ServiceUtils.GetModelId(executionSettings, this._client.DeploymentName), prompt, executionSettings, kernel, cancellationToken);
 }
