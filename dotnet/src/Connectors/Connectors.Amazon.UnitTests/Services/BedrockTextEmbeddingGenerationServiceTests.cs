@@ -16,6 +16,7 @@ namespace Microsoft.SemanticKernel.Connectors.Amazon.UnitTests;
 /// <summary>
 /// Unit tests for Bedrock Text Embedding Generation Service.
 /// </summary>
+[Obsolete("This test class uses obsolete APIs. Use BedrockEmbeddingGeneratorTests instead.")]
 public sealed class BedrockTextEmbeddingGenerationServiceTests
 {
     /// <summary>
@@ -26,7 +27,7 @@ public sealed class BedrockTextEmbeddingGenerationServiceTests
     {
         // Arrange & Act
         string modelId = "amazon.titan-embed-text-v2:0";
-        var mockBedrockApi = new Mock<IAmazonBedrockRuntime>();
+        var mockBedrockApi = new Mock<IAmazonBedrockRuntime>(MockBehavior.Strict);
         var kernel = Kernel.CreateBuilder().AddBedrockTextEmbeddingGenerationService(modelId, mockBedrockApi.Object).Build();
         var service = kernel.GetRequiredService<ITextEmbeddingGenerationService>();
 
@@ -42,7 +43,7 @@ public sealed class BedrockTextEmbeddingGenerationServiceTests
     {
         // Arrange
         string invalidModelId = "invalid.invalid";
-        var mockBedrockApi = new Mock<IAmazonBedrockRuntime>();
+        var mockBedrockApi = new Mock<IAmazonBedrockRuntime>(MockBehavior.Strict);
 
         // Act
         var kernel = Kernel.CreateBuilder().AddBedrockTextEmbeddingGenerationService(invalidModelId, mockBedrockApi.Object).Build();
@@ -60,7 +61,7 @@ public sealed class BedrockTextEmbeddingGenerationServiceTests
     {
         // Arrange
         string emptyModelId = string.Empty;
-        var mockBedrockApi = new Mock<IAmazonBedrockRuntime>();
+        var mockBedrockApi = new Mock<IAmazonBedrockRuntime>(MockBehavior.Strict);
 
         // Act
         var kernel = Kernel.CreateBuilder().AddBedrockTextEmbeddingGenerationService(emptyModelId, mockBedrockApi.Object).Build();

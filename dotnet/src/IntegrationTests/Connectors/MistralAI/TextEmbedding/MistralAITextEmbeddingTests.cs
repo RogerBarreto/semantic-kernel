@@ -1,5 +1,6 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
@@ -11,23 +12,24 @@ namespace SemanticKernel.IntegrationTests.Connectors.MistralAI;
 /// <summary>
 /// Integration tests for <see cref="MistralAITextEmbeddingGenerationService"/>.
 /// </summary>
-public sealed class MistralAITextEmbeddingTests
+[Obsolete("Temporary Tests for Obsolete MistralAITextEmbeddingGenerationService")]
+public sealed class MistralAITextEmbeddingGenerationServiceTests
 {
     private readonly IConfigurationRoot _configuration;
 
-    public MistralAITextEmbeddingTests()
+    public MistralAITextEmbeddingGenerationServiceTests()
     {
         // Load configuration
         this._configuration = new ConfigurationBuilder()
             .AddJsonFile(path: "testsettings.json", optional: false, reloadOnChange: true)
             .AddJsonFile(path: "testsettings.development.json", optional: true, reloadOnChange: true)
             .AddEnvironmentVariables()
-            .AddUserSecrets<MistralAITextEmbeddingTests>()
+            .AddUserSecrets<MistralAITextEmbeddingGenerationServiceTests>()
             .Build();
     }
 
     [Fact(Skip = "This test is for manual verification.")]
-    public async Task MistralAIGenerateEmbeddingsAsync()
+    public async Task MistralAITextGenerateEmbeddingsAsync()
     {
         // Arrange
         var model = this._configuration["MistralAI:EmbeddingModel"];
