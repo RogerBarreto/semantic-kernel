@@ -64,7 +64,7 @@ public sealed class AzureAIInferenceKernelBuilderExtensionsTests
         // Assert
         var sut = builder.Build().GetRequiredService<IChatClient>();
         Assert.NotNull(sut);
-        Assert.Equal("FunctionInvokingChatClient", sut.GetType().Name);
+        Assert.Equal("KernelFunctionInvokingChatClient", sut.GetType().Name);
     }
 
     public enum InitializationType

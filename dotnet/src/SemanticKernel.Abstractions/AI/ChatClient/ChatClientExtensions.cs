@@ -106,10 +106,12 @@ public static class ChatClientExtensions
 
     private static ChatOptions GetChatOptionsFromSettings(PromptExecutionSettings? executionSettings, Kernel? kernel)
     {
-        ChatOptions chatOptions = executionSettings?.ToChatOptions(kernel) ?? new ChatOptions().AddKernel(kernel);
+        if (kernel is null)
+        {
+            return executionSettings?.ToChatOptions(null) ?? new();
+        }
 
-        // Passing by reference to be used by AutoFunctionInvocationFilters
-        chatOptions.AdditionalProperties![ChatOptionsExtensions.PromptExecutionSettingsKey] = executionSettings;
-        return chatOptions;
+        // If the kernel is present we add it with the execution settings to a auto invocation enabled chat options
+        return new KernelChatOptions(kernel, null, executionSettings);
     }
 }

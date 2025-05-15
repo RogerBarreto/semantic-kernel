@@ -133,7 +133,7 @@ public sealed class AzureAIInferenceChatClientTests(ITestOutputHelper output) : 
 
         var kernelBuilder = Kernel.CreateBuilder();
 
-        kernelBuilder.AddAzureAIInferenceChatClient(modelId: config.ChatModelId, endpoint: config.Endpoint, apiKey: null);
+        kernelBuilder.AddAzureAIInferenceChatClient(modelId: config.ChatModelId, endpoint: config.Endpoint, apiKey: "wrong");
 
         kernelBuilder.Services.ConfigureHttpClientDefaults(c =>
         {
