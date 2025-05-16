@@ -130,10 +130,9 @@ public static class AzureAIInferenceServiceCollectionExtensions
                 builder.UseLogging(loggerFactory);
             }
 
-            builder.UseOpenTelemetry(loggerFactory, openTelemetrySourceName, openTelemetryConfig);
-
             return builder
                     .UseKernelFunctionInvocation(loggerFactory)
+                    .UseOpenTelemetry(loggerFactory, openTelemetrySourceName, openTelemetryConfig)
                     .Build(serviceProvider);
         });
     }
@@ -178,10 +177,9 @@ public static class AzureAIInferenceServiceCollectionExtensions
                 builder.UseLogging(loggerFactory);
             }
 
-            builder.UseOpenTelemetry(loggerFactory, openTelemetrySourceName, openTelemetryConfig);
-
             return builder
                     .UseKernelFunctionInvocation(loggerFactory)
+                    .UseOpenTelemetry(loggerFactory, openTelemetrySourceName, openTelemetryConfig)
                     .Build(serviceProvider);
         });
     }
@@ -220,10 +218,9 @@ public static class AzureAIInferenceServiceCollectionExtensions
                 builder.UseLogging(loggerFactory);
             }
 
-            builder.UseOpenTelemetry(loggerFactory, openTelemetrySourceName, openTelemetryConfig);
-
             return builder
                 .UseKernelFunctionInvocation(loggerFactory)
+                .UseOpenTelemetry(loggerFactory, openTelemetrySourceName, openTelemetryConfig)
                 .Build(serviceProvider);
         });
     }

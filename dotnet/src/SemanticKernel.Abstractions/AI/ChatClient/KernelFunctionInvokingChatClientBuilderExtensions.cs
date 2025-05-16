@@ -30,7 +30,7 @@ public static class KernelFunctionInvokingChatClientBuilderExtensions
         {
             loggerFactory ??= services.GetService<ILoggerFactory>();
 
-            return new FunctionInvokingChatClient(innerClient, loggerFactory, services);
+            return new KernelFunctionInvokingChatClient(innerClient, loggerFactory, services);
         });
     }
 }
