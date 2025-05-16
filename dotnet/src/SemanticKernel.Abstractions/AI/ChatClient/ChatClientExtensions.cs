@@ -29,7 +29,7 @@ public static class ChatClientExtensions
         Kernel? kernel = null,
         CancellationToken cancellationToken = default)
     {
-        var chatOptions = GetChatOptionsFromSettings(executionSettings, kernel);
+        var chatOptions = executionSettings.ToChatOptions(kernel);
 
         // Try to parse the text as a chat history
         if (ChatPromptParser.TryParse(prompt, out var chatHistoryFromPrompt))
@@ -55,7 +55,7 @@ public static class ChatClientExtensions
         Kernel? kernel = null,
         CancellationToken cancellationToken = default)
     {
-        var chatOptions = GetChatOptionsFromSettings(executionSettings, kernel);
+        var chatOptions = executionSettings.ToChatOptions(kernel);
 
         return chatClient.GetStreamingResponseAsync(prompt, chatOptions, cancellationToken);
     }
@@ -102,16 +102,5 @@ public static class ChatClientExtensions
         return client is KernelFunctionInvokingChatClient kernelFunctionInvocationClient
             ? kernelFunctionInvocationClient
             : new KernelFunctionInvokingChatClient(client, loggerFactory);
-    }
-
-    private static ChatOptions GetChatOptionsFromSettings(PromptExecutionSettings? executionSettings, Kernel? kernel)
-    {
-        if (kernel is null)
-        {
-            return executionSettings?.ToChatOptions(null) ?? new();
-        }
-
-        // If the kernel is present we add it with the execution settings to a auto invocation enabled chat options
-        return new KernelChatOptions(kernel, null, executionSettings);
     }
 }

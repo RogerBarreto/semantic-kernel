@@ -24,22 +24,15 @@ public class AutoFunctionInvocationContext : Microsoft.Extensions.AI.FunctionInv
     {
         Verify.NotNull(autoInvocationChatOptions);
         Verify.NotNull(aiFunction);
-
         if (aiFunction is not KernelFunction kernelFunction)
         {
             throw new InvalidOperationException($"The function must be of type {nameof(KernelFunction)}.");
         }
-
-        // The ChatOptions must be provided with the kernel.
         Verify.NotNull(autoInvocationChatOptions.Kernel);
-
-        // The ChatOptions must be provided with the chat message content.
         Verify.NotNull(autoInvocationChatOptions.ChatMessageContent);
 
-        // The ChatOptions can be provided with the execution settings.
-
-        this.ExecutionSettings = autoInvocationChatOptions.ExecutionSettings;
         this.Options = autoInvocationChatOptions;
+        this.ExecutionSettings = autoInvocationChatOptions.ExecutionSettings;
         this.AIFunction = aiFunction;
         this.Result = new FunctionResult(kernelFunction) { Culture = autoInvocationChatOptions.Kernel.Culture };
     }

@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.AI;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
-using OpenAI.Chat;
 using Xunit;
 using ChatMessageContent = Microsoft.SemanticKernel.ChatMessageContent;
 
