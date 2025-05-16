@@ -63,8 +63,9 @@ public static class BedrockServiceCollectionExtensions
 
                 builder.UseOpenTelemetry(loggerFactory, openTelemetrySourceName, openTelemetryConfig);
 
-                return builder.Build(serviceProvider)
-                    .AsKernelFunctionInvokingChatClient(loggerFactory);
+                return builder
+                    .UseKernelFunctionInvocation(loggerFactory)
+                    .Build(serviceProvider);
             }
             catch (Exception ex)
             {

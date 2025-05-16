@@ -132,8 +132,9 @@ public static class AzureAIInferenceServiceCollectionExtensions
 
             builder.UseOpenTelemetry(loggerFactory, openTelemetrySourceName, openTelemetryConfig);
 
-            return builder.Build(serviceProvider)
-                .AsKernelFunctionInvokingChatClient(loggerFactory);
+            return builder
+                    .UseKernelFunctionInvocation(loggerFactory)
+                    .Build(serviceProvider);
         });
     }
 
@@ -179,8 +180,9 @@ public static class AzureAIInferenceServiceCollectionExtensions
 
             builder.UseOpenTelemetry(loggerFactory, openTelemetrySourceName, openTelemetryConfig);
 
-            return builder.Build(serviceProvider)
-                .AsKernelFunctionInvokingChatClient(loggerFactory);
+            return builder
+                    .UseKernelFunctionInvocation(loggerFactory)
+                    .Build(serviceProvider);
         });
     }
 
@@ -220,8 +222,9 @@ public static class AzureAIInferenceServiceCollectionExtensions
 
             builder.UseOpenTelemetry(loggerFactory, openTelemetrySourceName, openTelemetryConfig);
 
-            return builder.Build(serviceProvider)
-                .AsKernelFunctionInvokingChatClient(loggerFactory);
+            return builder
+                .UseKernelFunctionInvocation(loggerFactory)
+                .Build(serviceProvider);
         });
     }
     #endregion ChatClient

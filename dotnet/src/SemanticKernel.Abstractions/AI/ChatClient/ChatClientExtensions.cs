@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.SemanticKernel.ChatCompletion;
 
@@ -86,21 +87,5 @@ public static class ChatClientExtensions
         Verify.NotNull(client);
 
         return client.GetService<ChatClientMetadata>()?.DefaultModelId;
-    }
-
-    /// <summary>
-    /// Creates a new <see cref="KernelFunctionInvokingChatClient"/> that supports <see cref="Kernel"/> for function invocation with a <see cref="IChatClient"/>.
-    /// </summary>
-    /// <param name="client">Target chat client service.</param>
-    /// <param name="loggerFactory">Optional logger factory to use for logging.</param>
-    /// <returns>Function invoking chat client.</returns>
-    [Experimental("SKEXP0001")]
-    public static IChatClient AsKernelFunctionInvokingChatClient(this IChatClient client, ILoggerFactory? loggerFactory = null)
-    {
-        Verify.NotNull(client);
-
-        return client is KernelFunctionInvokingChatClient kernelFunctionInvocationClient
-            ? kernelFunctionInvocationClient
-            : new KernelFunctionInvokingChatClient(client, loggerFactory);
     }
 }
