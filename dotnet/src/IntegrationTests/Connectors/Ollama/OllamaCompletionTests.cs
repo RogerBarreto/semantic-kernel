@@ -3,6 +3,7 @@
 using System;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -154,6 +155,26 @@ public sealed class OllamaCompletionTests(ITestOutputHelper output) : IDisposabl
         Assert.Contains(expectedAnswerContains, actual.GetValue<string>(), StringComparison.OrdinalIgnoreCase);
     }
 
+    [Fact(Skip = "For manual verification only")]
+    public async Task ItInvokeChatClientTestAsync()
+    {
+        // Arrange
+        this._kernelBuilder.Services.AddSingleton<ILoggerFactory>(this._logger);
+        var builder = this._kernelBuilder;
+
+        this.ConfigureChatClientOllama(this._kernelBuilder);
+
+        Kernel target = builder.Build();
+        var chatClient = target.GetRequiredService<IChatClient>();
+
+        // Act
+        var response = await chatClient.GetResponseAsync("Where is the most famous fish market in Seattle, Washington, USA?");
+
+        // Assert
+        Assert.NotNull(response);
+        Assert.Contains("Pike Place", response.Message.Text, StringComparison.OrdinalIgnoreCase);
+    }
+
     #region internals
 
     private readonly XunitLogger<Kernel> _logger = new(output);
@@ -174,6 +195,19 @@ public sealed class OllamaCompletionTests(ITestOutputHelper output) : IDisposabl
         Assert.NotNull(config.ModelId);
 
         kernelBuilder.AddOllamaChatCompletion(
+            modelId: config.ModelId,
+            endpoint: new Uri(config.Endpoint));
+    }
+
+    private void ConfigureChatClientOllama(IKernelBuilder kernelBuilder)
+    {
+        var config = this._configuration.GetSection("Ollama").Get<OllamaConfiguration>();
+
+        Assert.NotNull(config);
+        Assert.NotNull(config.Endpoint);
+        Assert.NotNull(config.ModelId);
+
+        kernelBuilder.AddOllamaChatClient(
             modelId: config.ModelId,
             endpoint: new Uri(config.Endpoint));
     }

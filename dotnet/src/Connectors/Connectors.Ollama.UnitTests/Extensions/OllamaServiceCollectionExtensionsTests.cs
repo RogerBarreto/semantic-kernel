@@ -49,6 +49,18 @@ public class OllamaServiceCollectionExtensionsTests
     }
 
     [Fact]
+    public void AddOllamaChatClientToServiceCollection()
+    {
+        var services = new ServiceCollection();
+        services.AddOllamaChatClient("model", new Uri("http://localhost:11434"));
+
+        var serviceProvider = services.BuildServiceProvider();
+        var service = serviceProvider.GetRequiredService<IChatClient>();
+
+        Assert.NotNull(service);
+    }
+
+    [Fact]
     public void AddOllamaChatCompletionFromServiceCollection()
     {
         var services = new ServiceCollection();
@@ -58,6 +70,19 @@ public class OllamaServiceCollectionExtensionsTests
         services.AddOllamaChatCompletion();
         var serviceProvider = services.BuildServiceProvider();
         var service = serviceProvider.GetRequiredService<IChatCompletionService>();
+        Assert.NotNull(service);
+    }
+
+    [Fact]
+    public void AddOllamaChatClientFromServiceCollection()
+    {
+        var services = new ServiceCollection();
+        using var ollamaClient = new OllamaApiClient(new Uri("http://localhost:11434"), "model");
+
+        services.AddSingleton(ollamaClient);
+        services.AddOllamaChatClient();
+        var serviceProvider = services.BuildServiceProvider();
+        var service = serviceProvider.GetRequiredService<IChatClient>();
         Assert.NotNull(service);
     }
 
@@ -294,6 +319,52 @@ public class OllamaServiceCollectionExtensionsTests
         Assert.NotNull(service);
 
         await service.GetStreamingTextContentsAsync("test prompt").GetAsyncEnumerator().MoveNextAsync();
+
+        Assert.Equal(1, myHttpClientHandler.InvokedCount);
+    }
+
+    [Theory]
+    [MemberData(nameof(AddOllamaApiClientScenarios))]
+    public async Task AddOllamaApiClientChatClientFromServiceCollectionAsync(ServiceCollectionRegistration registration)
+    {
+        using var myHttpClientHandler = new FakeHttpMessageHandler(File.ReadAllText("TestData/chat_completion_test_response.txt"));
+        using var httpClient = new HttpClient(myHttpClientHandler) { BaseAddress = new Uri("http://localhost:11434"), };
+        using var client = new OllamaApiClient(httpClient);
+        var services = new ServiceCollection();
+        string? serviceId = null;
+        switch (registration)
+        {
+            case ServiceCollectionRegistration.KeyedOllamaApiClient:
+                services.AddKeyedSingleton<OllamaApiClient>(serviceId = "model", client);
+                break;
+            case ServiceCollectionRegistration.KeyedIOllamaApiClient:
+                services.AddKeyedSingleton<IOllamaApiClient>(serviceId = "model", client);
+                break;
+            case ServiceCollectionRegistration.OllamaApiClient:
+                services.AddSingleton<OllamaApiClient>(client);
+                break;
+            case ServiceCollectionRegistration.Endpoint:
+                services.AddSingleton<IOllamaApiClient>(client);
+                break;
+        }
+
+        services.AddOllamaChatClient(serviceId: serviceId);
+        var serviceProvider = services.BuildServiceProvider();
+
+        IChatClient service;
+        if (registration is ServiceCollectionRegistration.KeyedOllamaApiClient
+                         or ServiceCollectionRegistration.KeyedIOllamaApiClient)
+        {
+            service = serviceProvider.GetRequiredKeyedService<IChatClient>(serviceId);
+        }
+        else
+        {
+            service = serviceProvider.GetRequiredService<IChatClient>();
+        }
+
+        Assert.NotNull(service);
+
+        await service.GetResponseAsync("test prompt");
 
         Assert.Equal(1, myHttpClientHandler.InvokedCount);
     }

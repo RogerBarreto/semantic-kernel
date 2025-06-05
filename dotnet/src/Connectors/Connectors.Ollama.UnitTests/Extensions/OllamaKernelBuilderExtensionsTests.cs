@@ -51,6 +51,19 @@ public class OllamaKernelBuilderExtensionsTests
     }
 
     [Fact]
+    public void AddOllamaChatClientCreatesService()
+    {
+        var builder = Kernel.CreateBuilder();
+        builder.AddOllamaChatClient("model", new Uri("http://localhost:11434"));
+
+        var kernel = builder.Build();
+        var service = kernel.GetRequiredService<IChatClient>();
+
+        Assert.NotNull(kernel);
+        Assert.NotNull(service);
+    }
+
+    [Fact]
     public void AddOllamaEmbeddingGeneratorCreatesService()
     {
         var builder = Kernel.CreateBuilder();
@@ -295,6 +308,45 @@ public class OllamaKernelBuilderExtensionsTests
         Assert.NotNull(service);
 
         await service.GetStreamingTextContentsAsync("test prompt").GetAsyncEnumerator().MoveNextAsync();
+
+        Assert.Equal(1, myHttpClientHandler.InvokedCount);
+    }
+
+    [Theory]
+    [MemberData(nameof(AddOllamaApiClientScenarios))]
+    public async Task AddOllamaApiClientChatClientFromServiceCollectionAsync(ServiceCollectionRegistration registration)
+    {
+        using var myHttpClientHandler = new FakeHttpMessageHandler(File.ReadAllText("TestData/chat_completion_test_response.txt"));
+        using var httpClient = new HttpClient(myHttpClientHandler) { BaseAddress = new Uri("http://localhost:11434"), };
+        using var client = new OllamaApiClient(httpClient);
+        var builder = Kernel.CreateBuilder();
+        var services = builder.Services;
+
+        string? serviceId = null;
+        switch (registration)
+        {
+            case ServiceCollectionRegistration.KeyedOllamaApiClient:
+                services.AddKeyedSingleton<OllamaApiClient>(serviceId = "model", client);
+                break;
+            case ServiceCollectionRegistration.KeyedIOllamaApiClient:
+                services.AddKeyedSingleton<IOllamaApiClient>(serviceId = "model", client);
+                break;
+            case ServiceCollectionRegistration.OllamaApiClient:
+                services.AddSingleton<OllamaApiClient>(client);
+                break;
+            case ServiceCollectionRegistration.Endpoint:
+                services.AddSingleton<IOllamaApiClient>(client);
+                break;
+        }
+
+        builder.AddOllamaChatClient(serviceId: serviceId);
+        var kernel = builder.Build();
+
+        IChatClient service = kernel.GetRequiredService<IChatClient>(serviceId);
+
+        Assert.NotNull(service);
+
+        await service.GetResponseAsync("test prompt");
 
         Assert.Equal(1, myHttpClientHandler.InvokedCount);
     }
